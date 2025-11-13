@@ -21,7 +21,11 @@ namespace SchedulingSystem.API.Controllers
             try
             {
                 var user = await _userService.RegisterAsync(registerDto);
-                return Ok(new { message = "Usuário registrado com sucesso", user.Id });
+                return Ok(new
+                {
+                    message = "Usuário registrado com sucesso",
+                    user = new { user.Id, user.Name, user.Email }
+                });
             }
             catch (Exception ex)
             {
@@ -34,12 +38,12 @@ namespace SchedulingSystem.API.Controllers
         {
             try
             {
-                var token = await _userService.LoginAsync(loginDto);
+                var result = await _userService.LoginAsync(loginDto);
                 return Ok(new
                 {
-                    token,
+                    token = result.Token,
                     message = "Login realizado com sucesso",
-                    user = new { email = loginDto.Email }
+                    user = result.User
                 });
             }
             catch (Exception ex)
@@ -48,30 +52,16 @@ namespace SchedulingSystem.API.Controllers
             }
         }
 
-        [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotDto)
+        [HttpPost("update-password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto updateDto)
         {
             try
             {
-                await _userService.ForgotPasswordAsync(forgotDto.Email);
-                return Ok(new { message = "Instruções de recuperação enviadas para o email" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetDto)
-        {
-            try
-            {
-                var result = await _userService.ResetPasswordAsync(resetDto);
+                var result = await _userService.UpdatePasswordAsync(updateDto);
                 if (result)
-                    return Ok(new { message = "Senha redefinida com sucesso" });
+                    return Ok(new { message = "Senha atualizada com sucesso" });
                 else
-                    return BadRequest(new { message = "Token inválido ou expirado" });
+                    return BadRequest(new { message = "Senha atual incorreta ou usuário não encontrado" });
             }
             catch (Exception ex)
             {

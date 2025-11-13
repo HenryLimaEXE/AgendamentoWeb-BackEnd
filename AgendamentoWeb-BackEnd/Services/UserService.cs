@@ -2,11 +2,10 @@
 using SchedulingSystem.API.Data;
 using SchedulingSystem.API.DTOs;
 using SchedulingSystem.API.Models;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace SchedulingSystem.API.Services
 {
@@ -21,16 +20,21 @@ namespace SchedulingSystem.API.Services
             _configuration = configuration;
         }
 
-        public async Task<User> RegisterAsync(RegisterDto registerDto)
+        public async Task<bool> EmailExistsAsync(string email)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
+            return await _context.Users.AnyAsync(u => u.Email == email);
+        }
+
+        public async Task<User> RegisterAsync(RegisterRequestDto registerDto)
+        {
+            if (await EmailExistsAsync(registerDto.Email))
                 throw new Exception("Email já está em uso");
 
             var user = new User
             {
                 Name = registerDto.Name,
                 Email = registerDto.Email,
-                PasswordHash = HashPassword(registerDto.Password)
+                Password = registerDto.Password // AGORA FUNCIONA
             };
 
             _context.Users.Add(user);
@@ -39,69 +43,52 @@ namespace SchedulingSystem.API.Services
             return user;
         }
 
-        public async Task<string> LoginAsync(LoginDto loginDto)
+        public async Task<LoginResponseDto> LoginAsync(LoginRequestDto loginDto)
         {
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
-            if (user == null || !VerifyPassword(loginDto.Password, user.PasswordHash))
-                throw new Exception("Email ou senha inválidos");
+            if (user == null)
+                throw new Exception("Email não cadastrado");
 
-            return GenerateJwtToken(user);
+            if (user.Password != loginDto.Password) // AGORA FUNCIONA
+                throw new Exception("Senha incorreta");
+
+            var token = GenerateJwtToken(user);
+
+            return new LoginResponseDto
+            {
+                Token = token,
+                Message = "Login realizado com sucesso",
+                User = new UserResponseDto
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email
+                }
+            };
         }
 
-        public async Task<bool> ForgotPasswordAsync(string email)
+        public async Task<bool> UpdatePasswordAsync(UpdatePasswordRequestDto updateDto)
         {
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email);
+                .FirstOrDefaultAsync(u => u.Email == updateDto.Email);
 
-            if (user == null) return true;
+            if (user == null)
+                return false;
 
-            user.ResetPasswordToken = Guid.NewGuid().ToString();
-            user.ResetPasswordTokenExpiry = DateTime.UtcNow.AddHours(24);
+            if (user.Password != updateDto.CurrentPassword) // AGORA FUNCIONA
+                return false;
 
+            user.Password = updateDto.NewPassword; // AGORA FUNCIONA
             await _context.SaveChangesAsync();
 
-            // Simular envio de email (implementar serviço de email depois)
-            Console.WriteLine($"Token de reset para {email}: {user.ResetPasswordToken}");
-
-            return true;
-        }
-
-        public async Task<bool> ResetPasswordAsync(ResetPasswordDto resetDto)
-        {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == resetDto.Email &&
-                                         u.ResetPasswordToken == resetDto.Token &&
-                                         u.ResetPasswordTokenExpiry > DateTime.UtcNow);
-
-            if (user == null) return false;
-
-            user.PasswordHash = HashPassword(resetDto.NewPassword);
-            user.ResetPasswordToken = null;
-            user.ResetPasswordTokenExpiry = null;
-            user.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
             return true;
         }
 
         public async Task<User> GetUserByIdAsync(int id)
         {
             return await _context.Users.FindAsync(id);
-        }
-
-        private string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
-        }
-
-        private bool VerifyPassword(string password, string passwordHash)
-        {
-            return HashPassword(password) == passwordHash;
         }
 
         private string GenerateJwtToken(User user)
@@ -121,7 +108,7 @@ namespace SchedulingSystem.API.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddHours(2),
+                expires: DateTime.Now.AddHours(8),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

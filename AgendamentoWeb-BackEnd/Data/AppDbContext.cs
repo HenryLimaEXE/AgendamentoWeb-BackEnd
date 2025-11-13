@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SchedulingSystem.API.Models;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace SchedulingSystem.API.Data
 {
@@ -10,7 +8,7 @@ namespace SchedulingSystem.API.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<Tarefa> Tarefas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -18,10 +16,10 @@ namespace SchedulingSystem.API.Data
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
-            modelBuilder.Entity<Appointment>()
-                .HasOne(a => a.User)
+            modelBuilder.Entity<Tarefa>()
+                .HasOne(t => t.User)
                 .WithMany()
-                .HasForeignKey(a => a.UserId)
+                .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

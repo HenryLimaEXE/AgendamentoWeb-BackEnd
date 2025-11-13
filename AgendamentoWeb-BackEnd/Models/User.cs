@@ -17,7 +17,7 @@ namespace SchedulingSystem.API.Models
         public string Email { get; set; }
 
         [Required]
-        public string PasswordHash { get; set; }
+        public string Password { get; set; } // CORRIGIDO: de PasswordHash para Password
 
         public string? ResetPasswordToken { get; set; }
         public DateTime? ResetPasswordTokenExpiry { get; set; }
