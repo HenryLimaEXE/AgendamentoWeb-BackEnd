@@ -7,8 +7,8 @@ namespace SchedulingSystem.API.Services
     {
         Task<Tarefa> CriarTarefaAsync(CriarTarefaDto tarefaDto);
         Task<List<Tarefa>> ObterTarefasPorUsuarioAsync(int userId);
-        Task<Tarefa> ObterTarefaPorIdAsync(int id);
-        Task<Tarefa> AtualizarTarefaAsync(int id, EditarTarefaDto tarefaDto);
+        Task<Tarefa?> ObterTarefaPorIdAsync(int id); 
+        Task<Tarefa?> AtualizarTarefaAsync(int id, EditarTarefaDto tarefaDto);
         Task<bool> ExcluirTarefaAsync(int id);
         Task<bool> AlternarStatusTarefaAsync(int id);
         Task<bool> MoverParaFazendoAsync(int id);
