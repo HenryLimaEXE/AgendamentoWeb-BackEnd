@@ -16,15 +16,20 @@ namespace SchedulingSystem.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerDto)
         {
             try
             {
                 var user = await _userService.RegisterAsync(registerDto);
-                return Ok(new
+                return Ok(new RegisterResponseDto
                 {
-                    message = "Usuário registrado com sucesso",
-                    user = new { user.Id, user.Name, user.Email }
+                    Message = "Usuário registrado com sucesso",
+                    User = new UserResponseDto
+                    {
+                        Id = user.Id,
+                        Name = user.Name,
+                        Email = user.Email
+                    }
                 });
             }
             catch (Exception ex)
@@ -34,17 +39,12 @@ namespace SchedulingSystem.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto loginDto)
         {
             try
             {
                 var result = await _userService.LoginAsync(loginDto);
-                return Ok(new
-                {
-                    token = result.Token,
-                    message = "Login realizado com sucesso",
-                    user = result.User
-                });
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -53,7 +53,7 @@ namespace SchedulingSystem.API.Controllers
         }
 
         [HttpPost("update-password")]
-        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto updateDto)
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequestDto updateDto) // CORRIGIDO
         {
             try
             {

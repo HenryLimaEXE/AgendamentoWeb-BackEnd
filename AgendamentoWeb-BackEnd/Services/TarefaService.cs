@@ -39,12 +39,12 @@ namespace SchedulingSystem.API.Services
                 .ToListAsync();
         }
 
-        public async Task<Tarefa> ObterTarefaPorIdAsync(int id)
+        public async Task<Tarefa?> ObterTarefaPorIdAsync(int id)
         {
             return await _context.Tarefas.FindAsync(id);
         }
 
-        public async Task<Tarefa> AtualizarTarefaAsync(int id, EditarTarefaDto tarefaDto)
+        public async Task<Tarefa?> AtualizarTarefaAsync(int id, EditarTarefaDto tarefaDto)
         {
             var tarefa = await _context.Tarefas.FindAsync(id);
             if (tarefa == null) return null;

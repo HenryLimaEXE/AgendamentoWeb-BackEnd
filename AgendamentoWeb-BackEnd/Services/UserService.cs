@@ -34,7 +34,7 @@ namespace SchedulingSystem.API.Services
             {
                 Name = registerDto.Name,
                 Email = registerDto.Email,
-                Password = registerDto.Password // AGORA FUNCIONA
+                Password = registerDto.Password
             };
 
             _context.Users.Add(user);
@@ -51,7 +51,7 @@ namespace SchedulingSystem.API.Services
             if (user == null)
                 throw new Exception("Email não cadastrado");
 
-            if (user.Password != loginDto.Password) // AGORA FUNCIONA
+            if (user.Password != loginDto.Password)
                 throw new Exception("Senha incorreta");
 
             var token = GenerateJwtToken(user);
@@ -77,16 +77,16 @@ namespace SchedulingSystem.API.Services
             if (user == null)
                 return false;
 
-            if (user.Password != updateDto.CurrentPassword) // AGORA FUNCIONA
+            if (user.Password != updateDto.CurrentPassword)
                 return false;
 
-            user.Password = updateDto.NewPassword; // AGORA FUNCIONA
+            user.Password = updateDto.NewPassword;
             await _context.SaveChangesAsync();
 
             return true;
         }
 
-        public async Task<User> GetUserByIdAsync(int id)
+        public async Task<User?> GetUserByIdAsync(int id)
         {
             return await _context.Users.FindAsync(id);
         }
@@ -100,8 +100,8 @@ namespace SchedulingSystem.API.Services
                 new Claim(ClaimTypes.Name, user.Name)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _configuration["Jwt:Key"]));
+            var jwtKey = _configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
