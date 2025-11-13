@@ -7,18 +7,18 @@ namespace SchedulingSystem.API.DTOs
         public int Id { get; set; }
 
         [Required]
-        public string Titulo { get; set; }
+        public string Titulo { get; set; } = string.Empty;
 
         [Required]
-        public string DataLimite { get; set; }
+        public string DataLimite { get; set; } = string.Empty;
 
         [Required]
-        public string Descricao { get; set; }
+        public string Descricao { get; set; } = string.Empty;
 
         public bool Concluida { get; set; }
 
         [Required]
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
 
         public int UserId { get; set; }
     }
@@ -26,13 +26,13 @@ namespace SchedulingSystem.API.DTOs
     public class CriarTarefaDto
     {
         [Required]
-        public string Titulo { get; set; }
+        public string Titulo { get; set; } = string.Empty;
 
         [Required]
-        public string DataLimite { get; set; }
+        public string DataLimite { get; set; } = string.Empty;
 
         [Required]
-        public string Descricao { get; set; }
+        public string Descricao { get; set; } = string.Empty;
 
         public int UserId { get; set; }
     }
@@ -40,17 +40,17 @@ namespace SchedulingSystem.API.DTOs
     public class EditarTarefaDto
     {
         [Required]
-        public string Titulo { get; set; }
+        public string Titulo { get; set; } = string.Empty;
 
         [Required]
-        public string DataLimite { get; set; }
+        public string DataLimite { get; set; } = string.Empty;
 
         [Required]
-        public string Descricao { get; set; }
+        public string Descricao { get; set; } = string.Empty;
 
         public bool Concluida { get; set; }
 
         [Required]
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
     }
 }

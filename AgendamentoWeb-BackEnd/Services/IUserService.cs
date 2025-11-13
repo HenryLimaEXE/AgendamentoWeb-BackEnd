@@ -8,7 +8,7 @@ namespace SchedulingSystem.API.Services
         Task<User> RegisterAsync(RegisterRequestDto registerDto);
         Task<LoginResponseDto> LoginAsync(LoginRequestDto loginDto);
         Task<bool> UpdatePasswordAsync(UpdatePasswordRequestDto updateDto);
-        Task<User> GetUserByIdAsync(int id);
+        Task<User?> GetUserByIdAsync(int id);
         Task<bool> EmailExistsAsync(string email);
     }
 }
