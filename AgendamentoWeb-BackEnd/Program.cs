@@ -45,10 +45,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        policy.WithOrigins(
+            "http://localhost:4200",    // Angular dev
+            "https://localhost:4200",   // Caso o Angular use HTTPS
+            "http://localhost:5052",    // Backend
+            "https://localhost:5052"    // Backend HTTPS
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
 
